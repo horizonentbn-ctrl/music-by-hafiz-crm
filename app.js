@@ -199,11 +199,13 @@ async function loadDashboard() {
 function chartColors() {
   const dark = document.documentElement.getAttribute("data-theme") === "dark";
   return {
-    grid: dark ? "#2e3042" : "#e5e7eb",
-    text: dark ? "#9ca3af" : "#6b7280",
-    primary: "#6d28d9",
-    accent: "#fbbf24",
-    palette: ["#6d28d9", "#fbbf24", "#16a34a", "#dc2626", "#0ea5e9", "#ec4899", "#f97316", "#84cc16"]
+    grid: dark ? "#232b27" : "#e7eae8",
+    text: dark ? "#8b9690" : "#6b7572",
+    primary: dark ? "#34d399" : "#10b981",
+    accent: "#059669",
+    palette: dark
+      ? ["#34d399", "#6ee7b7", "#10b981", "#a7f3d0", "#059669", "#d1fae5", "#f5f7f6", "#8b9690"]
+      : ["#10b981", "#059669", "#34d399", "#6ee7b7", "#0a0f0d", "#6b7572", "#a7f3d0", "#d1fae5"]
   };
 }
 
