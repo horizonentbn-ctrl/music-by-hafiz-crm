@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>Music by Hafiz - CRM</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#6d28d9">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div id="app">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <h1><span class="logo-dot"></span> <span id="pageTitle">Dashboard</span></h1>
+    <button class="icon-btn" id="themeToggle" title="Toggle dark mode">🌙</button>
+  </header>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section class="page active" id="page-dashboard">
+    <div id="followUpAlerts"></div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-label">New Enquiries</div><div class="stat-value" id="stat-newEnquiries">0</div></div>
+      <div class="stat-card"><div class="stat-label">Quotes Sent</div><div class="stat-value" id="stat-quotesSent">0</div></div>
+      <div class="stat-card"><div class="stat-label">Deposit Pending</div><div class="stat-value" id="stat-depositPending">0</div></div>
+      <div class="stat-card"><div class="stat-label">Confirmed Bookings</div><div class="stat-value" id="stat-confirmedBookings">0</div></div>
+      <div class="stat-card"><div class="stat-label">Upcoming (30d)</div><div class="stat-value" id="stat-upcomingEvents">0</div></div>
+      <div class="stat-card"><div class="stat-label">Revenue (Month)</div><div class="stat-value" id="stat-revenueMonth">RM0</div></div>
+      <div class="stat-card"><div class="stat-label">Revenue (Year)</div><div class="stat-value" id="stat-revenueYear">RM0</div></div>
+      <div class="stat-card"><div class="stat-label">Top Package</div><div class="stat-value" id="stat-mostPopularPackage" style="font-size:15px;">-</div></div>
+      <div class="stat-card" style="grid-column: span 2;"><div class="stat-label">Best Lead Source</div><div class="stat-value" id="stat-bestLeadSource" style="font-size:18px;">-</div></div>
+    </div>
+
+    <div class="chart-wrap"><h3>Enquiries by Month</h3><canvas id="chartEnquiries"></canvas></div>
+    <div class="chart-wrap"><h3>Bookings by Month</h3><canvas id="chartBookings"></canvas></div>
+    <div class="chart-wrap"><h3>Revenue by Month (RM)</h3><canvas id="chartRevenue"></canvas></div>
+    <div class="chart-wrap"><h3>Lead Source Breakdown</h3><canvas id="chartLeadSource"></canvas></div>
+    <div class="chart-wrap"><h3>Package Breakdown</h3><canvas id="chartPackage"></canvas></div>
+  </section>
+
+  <!-- ============ LEADS ============ -->
+  <section class="page" id="page-leads">
+    <div class="search-bar">
+      <input type="text" id="leadSearch" placeholder="Search by name, phone, venue...">
+    </div>
+    <div class="tab-row" id="leadStatusTabs"></div>
+    <div id="leadsList"></div>
+  </section>
+
+  <!-- ============ BOOKINGS ============ -->
+  <section class="page" id="page-bookings">
+    <div class="tab-row">
+      <button class="tab-btn active" data-bview="list">List</button>
+      <button class="tab-btn" data-bview="calendar">Calendar</button>
+    </div>
+    <div class="search-bar" id="bookingListView">
+      <input type="text" id="bookingSearch" placeholder="Search bookings...">
+    </div>
+    <div id="bookingsList"></div>
+    <div id="bookingCalendarView" style="display:none;">
+      <div class="card">
+        <div class="calendar-nav">
+          <button class="icon-btn" id="calPrev">‹</button>
+          <span id="calLabel">Month Year</span>
+          <button class="icon-btn" id="calNext">›</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+      <div id="calendarEventList"></div>
+    </div>
+  </section>
+
+  <!-- ============ VENUES ============ -->
+  <section class="page" id="page-venues">
+    <div class="search-bar">
+      <input type="text" id="venueSearch" placeholder="Search venues...">
+    </div>
+    <div id="venuesList"></div>
+  </section>
+
+  <!-- ============ CONTENT ============ -->
+  <section class="page" id="page-content">
+    <div class="tab-row">
+      <button class="tab-btn active" data-cfilter="all">All</button>
+      <button class="tab-btn" data-cfilter="unposted">Unposted Content</button>
+      <button class="tab-btn" data-cfilter="testimonial">Needs Testimonial</button>
+    </div>
+    <div id="contentList"></div>
+  </section>
+
+  <!-- ============ REPORTS ============ -->
+  <section class="page" id="page-reports">
+    <div class="tab-row">
+      <button class="tab-btn active" data-report="conversion">Conversion</button>
+      <button class="tab-btn" data-report="leadsource">Lead Source</button>
+      <button class="tab-btn" data-report="revenue">Revenue</button>
+      <button class="tab-btn" data-report="packages">Packages</button>
+      <button class="tab-btn" data-report="lost">Lost Leads</button>
+    </div>
+    <div id="reportContent"></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="page" id="page-settings">
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">Connection</div>
+      <div class="form-group">
+        <label>Apps Script Web App URL</label>
+        <input type="text" id="settingsApiUrl" placeholder="https://script.google.com/macros/s/XXXX/exec">
+      </div>
+      <div class="form-group">
+        <label>API Key</label>
+        <input type="text" id="settingsApiKey" placeholder="musicbyhafiz2026">
+      </div>
+      <button class="btn" id="saveSettingsBtn">Save & Reconnect</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">Export Data (CSV)</div>
+      <div class="btn-row" style="flex-wrap:wrap; gap:8px;">
+        <button class="btn secondary small" data-export="Leads">Export Leads</button>
+        <button class="btn secondary small" data-export="Bookings">Export Bookings</button>
+        <button class="btn secondary small" data-export="Venues">Export Venues</button>
+        <button class="btn secondary small" data-export="Content">Export Content</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">Appearance</div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="darkModeToggle">
+        <label for="darkModeToggle" style="margin:0; text-transform:none; font-size:14px;">Dark Mode</label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title" style="margin-top:0;">About</div>
+      <p style="font-size:13px; color:var(--text-muted); margin:0;">Music by Hafiz CRM v1.0<br>Built with Google Apps Script + Sheets + PWA.</p>
+    </div>
+  </section>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span>Dashboard</button>
+    <button class="nav-item" data-page="leads"><span class="nav-icon">👤</span>Leads</button>
+    <button class="nav-item" data-page="bookings"><span class="nav-icon">📅</span>Bookings</button>
+    <button class="nav-item" data-page="venues"><span class="nav-icon">📍</span>Venues</button>
+    <button class="nav-item" data-page="content"><span class="nav-icon">🎬</span>Content</button>
+    <button class="nav-item" data-page="reports"><span class="nav-icon">📈</span>Reports</button>
+    <button class="nav-item" data-page="settings"><span class="nav-icon">⚙️</span>Settings</button>
+  </nav>
+
+  <!-- FAB -->
+  <button class="fab" id="fabBtn">+</button>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ============ MODALS ============ -->
+
+  <!-- Lead Modal -->
+  <div class="modal-overlay" id="leadModal">
+    <div class="modal-sheet">
+      <h2 id="leadModalTitle">Add Lead</h2>
+      <form id="leadForm">
+        <input type="hidden" id="lead-LeadID">
+        <div class="form-group"><label>Client Name</label><input required id="lead-ClientName"></div>
+        <div class="form-group"><label>Phone Number</label><input required id="lead-Phone" type="tel"></div>
+        <div class="form-group"><label>WhatsApp Number</label><input id="lead-WhatsApp" type="tel" placeholder="With country code, e.g. 6012xxxxxxx"></div>
+        <div class="form-group"><label>Inquiry Date</label><input required id="lead-InquiryDate" type="date"></div>
+        <div class="form-group"><label>Event Date</label><input id="lead-EventDate" type="date"></div>
+        <div class="form-group"><label>Event Type</label><input id="lead-EventType" placeholder="Wedding, Corporate, etc."></div>
+        <div class="form-group"><label>Venue</label><input id="lead-Venue"></div>
+        <div class="form-group"><label>Lead Source</label>
+          <select id="lead-LeadSource"></select>
+        </div>
+        <div class="form-group"><label>Preferred Instrument</label>
+          <select id="lead-Instrument"></select>
+        </div>
+        <div class="form-group"><label>Package Interested</label>
+          <select id="lead-Package"></select>
+        </div>
+        <div class="form-group"><label>Quote Value (RM)</label><input id="lead-QuoteValue" type="number" step="0.01"></div>
+        <div class="form-group"><label>Status</label>
+          <select id="lead-Status"></select>
+        </div>
+        <div class="form-group" id="lostReasonGroup" style="display:none;"><label>Lost Reason</label>
+          <select id="lead-LostReason"></select>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea id="lead-Notes"></textarea></div>
+        <div class="btn-row">
+          <button type="button" class="btn secondary" onclick="closeModal('leadModal')">Cancel</button>
+          <button type="submit" class="btn">Save Lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Booking Modal -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal-sheet">
+      <h2 id="bookingModalTitle">Add Booking</h2>
+      <form id="bookingForm">
+        <input type="hidden" id="booking-BookingID">
+        <input type="hidden" id="booking-LeadID">
+        <div class="form-group"><label>Client Name</label><input required id="booking-ClientName"></div>
+        <div class="form-group"><label>Phone Number</label><input id="booking-Phone" type="tel"></div>
+        <div class="form-group"><label>WhatsApp Number</label><input id="booking-WhatsApp" type="tel"></div>
+        <div class="form-group"><label>Event Date</label><input required id="booking-EventDate" type="date"></div>
+        <div class="form-group"><label>Venue</label><input id="booking-Venue"></div>
+        <div class="form-group"><label>Package</label>
+          <select id="booking-Package"></select>
+        </div>
+        <div class="form-group"><label>Final Price (RM)</label><input id="booking-FinalPrice" type="number" step="0.01"></div>
+        <div class="form-group"><label>Deposit Paid (RM)</label><input id="booking-DepositPaid" type="number" step="0.01"></div>
+        <div class="form-group"><label>Payment Status</label>
+          <select id="booking-PaymentStatus"></select>
+        </div>
+        <div class="form-group checkbox-row">
+          <input type="checkbox" id="booking-RehearsalRequired">
+          <label for="booking-RehearsalRequired" style="margin:0; text-transform:none; font-size:14px;">Rehearsal Required</label>
+        </div>
+        <div class="form-group"><label>Rehearsal Date</label><input id="booking-RehearsalDate" type="date"></div>
+        <div class="form-group"><label>Song Requests</label><textarea id="booking-SongRequests"></textarea></div>
+        <div class="form-group"><label>Special Notes</label><textarea id="booking-SpecialNotes"></textarea></div>
+        <div class="btn-row">
+          <button type="button" class="btn secondary" onclick="closeModal('bookingModal')">Cancel</button>
+          <button type="submit" class="btn">Save Booking</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Venue Modal -->
+  <div class="modal-overlay" id="venueModal">
+    <div class="modal-sheet">
+      <h2 id="venueModalTitle">Add Venue</h2>
+      <form id="venueForm">
+        <input type="hidden" id="venue-OriginalName">
+        <div class="form-group"><label>Venue Name</label><input required id="venue-VenueName"></div>
+        <div class="form-group"><label>Parking Notes</label><textarea id="venue-ParkingNotes"></textarea></div>
+        <div class="form-group"><label>Setup Notes</label><textarea id="venue-SetupNotes"></textarea></div>
+        <div class="form-group"><label>Power Availability</label><input id="venue-PowerAvailability"></div>
+        <div class="form-group"><label>Contact Person</label><input id="venue-ContactPerson"></div>
+        <div class="form-group"><label>Contact Number</label><input id="venue-ContactNumber" type="tel"></div>
+        <div class="btn-row">
+          <button type="button" class="btn secondary" onclick="closeModal('venueModal')">Cancel</button>
+          <button type="submit" class="btn">Save Venue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Convert Lead Modal -->
+  <div class="modal-overlay" id="convertModal">
+    <div class="modal-sheet">
+      <h2>Convert Lead to Booking</h2>
+      <form id="convertForm">
+        <input type="hidden" id="convert-LeadID">
+        <div class="form-group"><label>Final Price (RM)</label><input required id="convert-FinalPrice" type="number" step="0.01"></div>
+        <div class="form-group"><label>Deposit Paid (RM)</label><input id="convert-DepositPaid" type="number" step="0.01" value="0"></div>
+        <div class="form-group"><label>Payment Status</label>
+          <select id="convert-PaymentStatus"></select>
+        </div>
+        <div class="form-group checkbox-row">
+          <input type="checkbox" id="convert-RehearsalRequired">
+          <label for="convert-RehearsalRequired" style="margin:0; text-transform:none; font-size:14px;">Rehearsal Required</label>
+        </div>
+        <div class="form-group"><label>Rehearsal Date</label><input id="convert-RehearsalDate" type="date"></div>
+        <div class="btn-row">
+          <button type="button" class="btn secondary" onclick="closeModal('convertModal')">Cancel</button>
+          <button type="submit" class="btn success">Confirm Booking</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Content Edit Modal -->
+  <div class="modal-overlay" id="contentModal">
+    <div class="modal-sheet">
+      <h2>Update Content Status</h2>
+      <form id="contentForm">
+        <input type="hidden" id="content-BookingID">
+        <div class="form-group checkbox-row"><input type="checkbox" id="content-PhotosAvailable"><label style="margin:0; text-transform:none; font-size:14px;">Photos Available</label></div>
+        <div class="form-group checkbox-row"><input type="checkbox" id="content-VideosAvailable"><label style="margin:0; text-transform:none; font-size:14px;">Videos Available</label></div>
+        <div class="form-group checkbox-row"><input type="checkbox" id="content-TikTokPosted"><label style="margin:0; text-transform:none; font-size:14px;">TikTok Posted</label></div>
+        <div class="form-group checkbox-row"><input type="checkbox" id="content-InstagramPosted"><label style="margin:0; text-transform:none; font-size:14px;">Instagram Posted</label></div>
+        <div class="form-group checkbox-row"><input type="checkbox" id="content-TestimonialReceived"><label style="margin:0; text-transform:none; font-size:14px;">Testimonial Received</label></div>
+        <div class="form-group"><label>Testimonial Text</label><textarea id="content-TestimonialText"></textarea></div>
+        <div class="btn-row">
+          <button type="button" class="btn secondary" onclick="closeModal('contentModal')">Cancel</button>
+          <button type="submit" class="btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
